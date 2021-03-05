@@ -100,15 +100,17 @@ void ACTR_Character::Tick(float DeltaTime) {
 
 		// get mouse pos in world3D
 		PlayerController->DeprojectMousePositionToWorld(MouseWorldLoc, MouseWorldDir);
-		// get eyes position in world3d
+		// get eyes position in world3D
 		PlayerController->GetPlayerViewPoint(PlayerViewPoint, PlayerViewRot);
 
+		//Intersect the ViewPoint to MousePosition Line with the XYPlane
 		FVector AimPosition = FMath::LinePlaneIntersection(PlayerViewPoint, MouseWorldLoc, XYPlane);
-
+		
 		const FRotator PlayerRotation = UKismetMathLibrary::FindLookAtRotation(ActorLocation, AimPosition);
 
-		// DrawDebugLine(GetWorld(), ActorLocation, AimPosition, FColor::Yellow, false, 0.01, 0, 2);
-		this->SetActorRotation(PlayerRotation);
+		DrawDebugLine(GetWorld(), ActorLocation, AimPosition, FColor::Red, false, 0.01, 0, 2);
+		DrawDebugSphere(GetWorld(),AimPosition, 10, 4, FColor::Yellow, false, -1, 1, 1);
+		this->SetActorRotation(PlayerRotation);	
 		CurrentWeapon->SetLaunchDirection(PlayerRotation.Vector());
 	}
 	else {
