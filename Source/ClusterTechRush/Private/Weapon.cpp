@@ -58,6 +58,21 @@ void AWeapon::IncreaseMultiShot() {
 	//TODO
 }
 
+void AWeapon::PlayEffects() {
+	if (FireSoundEffect) {
+		float VolumeMultiplier = FMath::RandRange(0.2f, 0.5f);
+		float PitchMultiplier = FMath::RandRange(0.9f, 1.5f);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSoundEffect,
+		                                      MeshComp->GetSocketLocation(MuzzleSocketName),
+		                                      FRotator::ZeroRotator,
+		                                      VolumeMultiplier, PitchMultiplier, 0.02f);
+		LastFireTime = GetWorld()->TimeSeconds;
+	}
+
+	//TODO play animation
+	//TODO play camera shake
+}
+
 void AWeapon::Fire() {
 
 	UWorld* World = GetWorld();
@@ -76,15 +91,7 @@ void AWeapon::Fire() {
 			LaunchDirection.Normalize();
 			Projectile->SetProjectileParameters(LaunchDirection, BaseDamage, ProjectileSpeed, DamageType);
 
-			if (FireSoundEffect) {
-				float VolumeMultiplier = FMath::RandRange(0.2f, 0.5f);
-				float PitchMultiplier = FMath::RandRange(0.9f, 1.5f);
-				UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSoundEffect,
-				                                      MeshComp->GetSocketLocation(MuzzleSocketName),
-				                                      FRotator::ZeroRotator,
-				                                      VolumeMultiplier, PitchMultiplier, 0.02f);
-				LastFireTime = GetWorld()->TimeSeconds;
-			}
+			PlayEffects();
 		}
 		else {
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("No player projetile spawned!!"));

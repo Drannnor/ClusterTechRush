@@ -32,6 +32,8 @@ AProjectile::AProjectile() {
 		ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 	}
 
+	LifeTime = 5.0f;
+
 
 }
 
@@ -50,8 +52,8 @@ void AProjectile::SetProjectileParameters(const FVector& ShotDirection, float Pr
 void AProjectile::BeginPlay() {
 	Super::BeginPlay();
 	CollisionComponent->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
-	
 
+	GetWorldTimerManager().SetTimer(TimerHandle_Lifetime, this, &AProjectile::DestroyProjectile, LifeTime, false);
 }
 
 // Called every frame
@@ -68,9 +70,12 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	                                    MyOwner->GetInstigatorController(), MyOwner, DamageType );
 
 
+	DestroyProjectile();
+}
+
+void AProjectile::DestroyProjectile() {
 	bool Destroyed = Destroy();
 	if (!Destroyed) {
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Projectile not destroyed"));
 	}
-	
 }

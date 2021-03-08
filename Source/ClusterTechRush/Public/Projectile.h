@@ -30,6 +30,11 @@ class CLUSTERTECHRUSH_API AProjectile : public AActor {
 	TSubclassOf<UDamageType> DamageType;
 	
 	float BaseDamage;
+	
+	UPROPERTY(EditDefaultsOnly, Category= "Lifetime")
+	float LifeTime;
+
+	FTimerHandle TimerHandle_Lifetime;
 
 	// Function that initializes the projectile's velocity in the shoot direction.
 	void SetProjectileParameters(const FVector& ShotDirection, float ProjectileDamage, float ProjectileSpeed, TSubclassOf<UDamageType> DamageType);
@@ -42,6 +47,9 @@ class CLUSTERTECHRUSH_API AProjectile : public AActor {
 	UFUNCTION()
     void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                         FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION()
+	void DestroyProjectile();
 
 	public:
 	// Called every frame

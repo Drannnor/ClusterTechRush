@@ -57,12 +57,15 @@ protected:
 
 	UPROPERTY( VisibleDefaultsOnly, Category= "Player" )
 	FName WeaponSocket;
-
+	
 	UFUNCTION()
 	void MoveForward(float Value);
 
 	UFUNCTION()
 	void MoveRight(float Value);
+
+	UFUNCTION()
+	void Dash();
 	
 	void IncreaseMovementSpeed();
 

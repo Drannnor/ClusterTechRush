@@ -26,6 +26,7 @@ public:
 	void IncreaseProjectileDamage();
 
 	void IncreaseMultiShot();
+	void PlayEffects();
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")

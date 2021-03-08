@@ -74,6 +74,11 @@ void ACTR_Character::MoveRight(const float Value) {
 	AddMovementInput(FVector::RightVector * Value);
 }
 
+void ACTR_Character::Dash() {
+	//TODO
+	LaunchCharacter(GetActorRotation().Vector(),true, false );
+}
+
 void ACTR_Character::StartFire() {
 	bFiring = true;
 	CurrentWeapon->StartFire();
@@ -147,32 +152,6 @@ void ACTR_Character::IncreaseHealth() {
 	HealthComponent->Heal(50.0f);
 }
 
-// void ACTR_Character::ApplyPickUpEffect(EPickUpType PickUpType) {
-// 	switch (PickUpType) {
-// 	case EPickUpType::Health:
-// 		IncreaseHealth();
-// 		break;
-// 	case EPickUpType::MaxHealth:
-// 		IncreaseMaxHealth();
-// 		break;
-// 	case EPickUpType::MovementSpeed:
-// 		IncreaseMovementSpeed();
-// 		break;
-// 	case EPickUpType::FireRate:
-// 		CurrentWeapon->IncreaseFireRate();
-// 		break;
-// 	case EPickUpType::ProjectileDamage:
-// 		CurrentWeapon->IncreaseProjectileDamage();
-// 		break;
-// 	case EPickUpType::MultiShot:
-// 		CurrentWeapon->IncreaseMultiShot();
-// 		break;
-// 	case EPickUpType::EnergyCell:
-// 		IncreaseDifficulty();
-// 		break;
-// 	default: ;
-// 	}
-// }
 
 // Called to bind functionality to input
 void ACTR_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
@@ -183,4 +162,8 @@ void ACTR_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACTR_Character::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACTR_Character::StopFire);
+
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ACTR_Character::Dash);
+	
+	
 }
