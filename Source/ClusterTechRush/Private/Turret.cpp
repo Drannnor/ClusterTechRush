@@ -59,10 +59,10 @@ void ATurret::Tick(float DeltaTime)
 		const auto TargetPosition = TurretTarget->GetActorLocation();
 		const FVector AimPosition = FVector(TargetPosition.X, TargetPosition.Y, TurretPosition.Z);
 		
-		const FRotator WeaponRotation = UKismetMathLibrary::FindLookAtRotation(TurretPosition, AimPosition);
+		const FRotator WeaponRotation = UKismetMathLibrary::FindLookAtRotation(TurretPosition, AimPosition) + FRotator(0.0f, - 90.0f,0.0f);
 		DrawDebugSphere(GetWorld(), AimPosition, 50.f, 4, FColor::Red, false, 0.01, 0, 2 );
 		DrawDebugSphere(GetWorld(), TurretPosition, 50.f, 4, FColor::Green, false, 0.01, 0, 2 );
-		DrawDebugLine(GetWorld(), TurretPosition, (TurretPosition+WeaponRotation.Vector())*50, FColor::Blue, false, 0.01, 0, 2);
+		DrawDebugLine(GetWorld(), TurretPosition, TurretPosition+WeaponRotation.Vector()*50, FColor::Blue, false, 0.01, 0, 2);
 
 		TurretWeapon->SetLaunchDirection(WeaponRotation.Vector());
 		TurretWeapon->SetActorRotation(WeaponRotation);
