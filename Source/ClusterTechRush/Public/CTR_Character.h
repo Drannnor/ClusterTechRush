@@ -67,11 +67,7 @@ protected:
 	UFUNCTION()
 	void Dash();
 	
-	void IncreaseMovementSpeed();
 
-	void IncreaseMaxHealth();
-
-	void IncreaseHealth();
 
 
 public:
@@ -93,7 +89,12 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void IncreaseDifficulty();
-	
+
+	void IncreaseMovementSpeed();
+
+	void IncreaseMaxHealth();
+
+	void IncreaseHealth();
 	// UFUNCTION(BlueprintCallable)
 	// void ApplyPickUpEffect(EPickUpType PickUpType);
 
