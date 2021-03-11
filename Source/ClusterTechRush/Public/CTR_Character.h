@@ -49,7 +49,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category= "CameraOptions", meta = (ClampMin=0.0f))
 	float CameraFOV = 90.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, Category = Weapon)
 	TSubclassOf<class AWeapon> WeaponClass;
 
 	UPROPERTY(EditDefaultsOnly)
