@@ -2,8 +2,6 @@
 
 #include "CoreMinimal.h"
 
-
-// #include "PickUp.h"
 #include "Weapon.h"
 #include "GameFramework/Character.h"
 #include "CTR_Character.generated.h"
@@ -66,6 +64,12 @@ protected:
 
 	UFUNCTION()
 	void Dash();
+
+	UPROPERTY(EditDefaultsOnly, Category= "Dash", meta = (ClampMin=1.0f))
+	float DashMultiplier;
+
+	UPROPERTY(EditDefaultsOnly, Category= "Dash")
+	USoundBase* DashSoundEffect;
 	
 	void IncreaseMovementSpeed();
 

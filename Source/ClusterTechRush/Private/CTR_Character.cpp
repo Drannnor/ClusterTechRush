@@ -1,5 +1,3 @@
-
-
 #include "CTR_Character.h"
 
 #include "DrawDebugHelpers.h"
@@ -10,6 +8,7 @@
 #include "HealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ACTR_Character::ACTR_Character() {
@@ -36,6 +35,8 @@ ACTR_Character::ACTR_Character() {
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ACTR_Character::OnHealthChanged);
 
 	WeaponSocket = "WeaponSocket";
+
+	DashMultiplier = 300;
 
 }
 
@@ -74,9 +75,21 @@ void ACTR_Character::MoveRight(const float Value) {
 	AddMovementInput(FVector::RightVector * Value);
 }
 
+
 void ACTR_Character::Dash() {
-	//TODO
-	LaunchCharacter(GetActorRotation().Vector(),true, false );
+
+	FVector DashVector = FVector(GetInputAxisValue("MoveForward"), GetInputAxisValue("MoveRight"), 0.0f);
+	if (DashVector.Size() == 0.0f) {
+		return;
+	}
+	DashVector.Normalize();
+	LaunchCharacter(DashVector * DashMultiplier, true, false);
+
+	if (DashSoundEffect) {
+
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), DashSoundEffect, GetActorLocation(), FRotator::ZeroRotator);
+
+	}
 }
 
 void ACTR_Character::StartFire() {
@@ -110,12 +123,12 @@ void ACTR_Character::Tick(float DeltaTime) {
 
 		//Intersect the ViewPoint to MousePosition Line with the XYPlane
 		FVector AimPosition = FMath::LinePlaneIntersection(PlayerViewPoint, MouseWorldLoc, XYPlane);
-		
+
 		const FRotator PlayerRotation = UKismetMathLibrary::FindLookAtRotation(ActorLocation, AimPosition);
 
 		DrawDebugLine(GetWorld(), ActorLocation, AimPosition, FColor::Red, false, 0.01, 0, 2);
-		DrawDebugSphere(GetWorld(),AimPosition, 10, 4, FColor::Yellow, false, -1, 1, 1);
-		this->SetActorRotation(PlayerRotation);	
+		DrawDebugSphere(GetWorld(), AimPosition, 10, 4, FColor::Yellow, false, -1, 1, 1);
+		this->SetActorRotation(PlayerRotation);
 		CurrentWeapon->SetLaunchDirection(PlayerRotation.Vector());
 	}
 	else {
@@ -124,7 +137,7 @@ void ACTR_Character::Tick(float DeltaTime) {
 }
 
 void ACTR_Character::OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta,
-                                  const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) {
+                                     const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) {
 
 	if (Health <= 0.0f && !bDead) {
 		//Die
@@ -164,6 +177,6 @@ void ACTR_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACTR_Character::StopFire);
 
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ACTR_Character::Dash);
-	
-	
+
+
 }
