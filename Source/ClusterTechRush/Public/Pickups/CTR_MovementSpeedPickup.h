@@ -26,6 +26,6 @@ protected:
 
 
 public:
-	virtual void ApplyEffect(ACTR_Character* player) override;
+	virtual void ApplyEffect(ACTR_Character* Player) override;
 
 };

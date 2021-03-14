@@ -3,6 +3,7 @@
 
 #include "Weapon.h"
 
+
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -20,6 +21,8 @@ AWeapon::AWeapon() {
 	// VulnerableMultiplier = 4.0f;
 	RateOfFire = 400;
 	BulletSpread = 2.0f;
+	bMultiShot = false;
+	MultiShotProjectileAngles.Init(FRotator::ZeroRotator, 1);
 
 }
 
@@ -28,11 +31,12 @@ void AWeapon::BeginPlay() {
 	Super::BeginPlay();
 	TimeBetweenShots = 60 / RateOfFire;
 
+
 }
 
 void AWeapon::StartFire() {
 	float FirstDelay = LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds;
-	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AWeapon::Fire, TimeBetweenShots, true,
+	GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &AWeapon::Trigger, TimeBetweenShots, true,
 	                                FMath::Max(FirstDelay, 0.0f));
 }
 
@@ -58,6 +62,47 @@ void AWeapon::IncreaseMultiShot() {
 	//TODO
 }
 
+
+void AWeapon::Trigger() {
+	Fire();
+}
+
+
+void AWeapon::Fire() {
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = GetInstigator();
+
+	FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
+
+	for (auto ProjectileAngle : MultiShotProjectileAngles) {
+		auto ProjectileDirection = LaunchDirection;
+		ProjectileDirection = ProjectileAngle.RotateVector(ProjectileDirection);
+
+		FRotator Spread = FRotator(0.0f, FMath::FRandRange(-BulletSpread, BulletSpread), 0.0f);
+
+		ProjectileDirection = Spread.RotateVector(ProjectileDirection);
+		
+		ProjectileDirection.Normalize();
+		// Spawn the projectile at the muzzle.
+		AProjectile* Projectile = World->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation,
+		                                                         ProjectileDirection.Rotation(), SpawnParams);
+		if (Projectile) {
+			// Set the projectile's initial trajectory.
+			Projectile->SetProjectileParameters(ProjectileDirection, BaseDamage, ProjectileSpeed, DamageType);
+
+			PlayEffects();
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("No player projetile spawned!!"));
+		}
+	}
+}
+
 void AWeapon::PlayEffects() {
 	if (FireSoundEffect) {
 		float VolumeMultiplier = FMath::RandRange(0.2f, 0.5f);
@@ -73,33 +118,7 @@ void AWeapon::PlayEffects() {
 	//TODO play camera shake
 }
 
-void AWeapon::Fire() {
 
-	UWorld* World = GetWorld();
-	if (World) {
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this;
-		SpawnParams.Instigator = GetInstigator();
-
-		FVector MuzzleLocation = MeshComp->GetSocketLocation(MuzzleSocketName);
-
-		// Spawn the projectile at the muzzle.
-		AProjectile* Projectile = World->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation,
-		                                                         LaunchDirection.Rotation(), SpawnParams);
-		if (Projectile) {
-			// Set the projectile's initial trajectory.
-			LaunchDirection.Normalize();
-			Projectile->SetProjectileParameters(LaunchDirection, BaseDamage, ProjectileSpeed, DamageType);
-
-			PlayEffects();
-		}
-		else {
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("No player projetile spawned!!"));
-		}
-	}
-}
-
-// Called every frame
 void AWeapon::Tick(float DeltaTime) {
-	Super::Tick(DeltaTime);
+
 }

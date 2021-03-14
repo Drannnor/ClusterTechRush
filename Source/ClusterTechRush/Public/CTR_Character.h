@@ -49,10 +49,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category= "CameraOptions", meta = (ClampMin=0.0f))
 	float CameraFOV = 90.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	TSubclassOf<class AWeapon> WeaponClass;
+	UPROPERTY(EditDefaultsOnly, Category = Weapon)
+	TSubclassOf<class AWeapon> DefaultWeaponClass;
 
-	UPROPERTY(EditDefaultsOnly)
 	AWeapon* CurrentWeapon;
 
 	UPROPERTY( VisibleDefaultsOnly, Category= "Player" )
@@ -95,6 +94,11 @@ public:
 	void IncreaseMaxHealth();
 
 	void IncreaseHealth();
+	void SpawnWeapon(const TSubclassOf<AWeapon>& WeaponClass);
+
+	void DropWeapon();
+	
+	void SwitchWeapon(const TSubclassOf<AWeapon>& WeaponClass);		
 	// UFUNCTION(BlueprintCallable)
 	// void ApplyPickUpEffect(EPickUpType PickUpType);
 

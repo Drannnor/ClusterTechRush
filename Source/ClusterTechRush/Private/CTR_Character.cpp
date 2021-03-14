@@ -1,5 +1,3 @@
-
-
 #include "CTR_Character.h"
 
 #include "DrawDebugHelpers.h"
@@ -49,20 +47,7 @@ void ACTR_Character::BeginPlay() {
 	APlayerController* MyController = GetWorld()->GetFirstPlayerController();
 	MyController->bShowMouseCursor = true;
 
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	CurrentWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass, FVector::ZeroVector,
-	                                                FRotator::ZeroRotator,
-	                                                SpawnParameters);
-
-	if (CurrentWeapon) {
-
-		CurrentWeapon->SetOwner(this);
-		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-		                                 WeaponSocket);
-	}
-
+	SpawnWeapon(DefaultWeaponClass);
 }
 
 void ACTR_Character::MoveForward(const float Value) {
@@ -76,7 +61,7 @@ void ACTR_Character::MoveRight(const float Value) {
 
 void ACTR_Character::Dash() {
 	//TODO
-	LaunchCharacter(GetActorRotation().Vector(),true, false );
+	LaunchCharacter(GetActorRotation().Vector(), true, false);
 }
 
 void ACTR_Character::StartFire() {
@@ -110,13 +95,15 @@ void ACTR_Character::Tick(float DeltaTime) {
 
 		//Intersect the ViewPoint to MousePosition Line with the XYPlane
 		FVector AimPosition = FMath::LinePlaneIntersection(PlayerViewPoint, MouseWorldLoc, XYPlane);
-		
+
 		const FRotator PlayerRotation = UKismetMathLibrary::FindLookAtRotation(ActorLocation, AimPosition);
 
 		DrawDebugLine(GetWorld(), ActorLocation, AimPosition, FColor::Red, false, 0.01, 0, 2);
-		DrawDebugSphere(GetWorld(),AimPosition, 10, 4, FColor::Yellow, false, -1, 1, 1);
-		this->SetActorRotation(PlayerRotation);	
-		CurrentWeapon->SetLaunchDirection(PlayerRotation.Vector());
+		DrawDebugSphere(GetWorld(), AimPosition, 10, 4, FColor::Yellow, false, -1, 1, 1);
+		this->SetActorRotation(PlayerRotation);
+		if (CurrentWeapon) {
+			CurrentWeapon->SetLaunchDirection(PlayerRotation.Vector());
+		} 
 	}
 	else {
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("No player controller found!!"));
@@ -124,7 +111,7 @@ void ACTR_Character::Tick(float DeltaTime) {
 }
 
 void ACTR_Character::OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta,
-                                  const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) {
+                                     const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) {
 
 	if (Health <= 0.0f && !bDead) {
 		//Die
@@ -153,6 +140,39 @@ void ACTR_Character::IncreaseHealth() {
 }
 
 
+void ACTR_Character::SwitchWeapon(const TSubclassOf<AWeapon>& WeaponClass) {
+	DropWeapon();
+	SpawnWeapon(WeaponClass);
+
+}
+
+void ACTR_Character::SpawnWeapon(const TSubclassOf<AWeapon>& WeaponClass) {
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	CurrentWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass, FVector::ZeroVector,
+	                                                FRotator::ZeroRotator,
+	                                                SpawnParameters);
+
+	if (CurrentWeapon) {
+
+		CurrentWeapon->SetOwner(this);
+		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+		                                 WeaponSocket);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Failed to SpawnWeapon"));
+	}
+}
+
+
+void ACTR_Character::DropWeapon() {
+	//TODO drop Pickup
+	CurrentWeapon->Destroy();
+	CurrentWeapon = nullptr;
+}
+
+
 // Called to bind functionality to input
 void ACTR_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -164,6 +184,6 @@ void ACTR_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACTR_Character::StopFire);
 
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &ACTR_Character::Dash);
-	
-	
+
+
 }

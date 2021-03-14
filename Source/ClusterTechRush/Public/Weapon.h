@@ -18,9 +18,9 @@ public:
 	virtual void StartFire();
 
 	virtual void StopFire();
-	
+
 	void SetLaunchDirection(const FVector& Dir);
-	
+
 	void IncreaseFireRate();
 
 	void IncreaseProjectileDamage();
@@ -52,11 +52,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category= "Weapon")
 	float RateOfFire;
 
+	UPROPERTY(EditDefaultsOnly, Category= "Weapon - MultiShot")
+	bool bMultiShot;
+
+	UPROPERTY(EditDefaultsOnly, Category= "Weapon - MultiShot", meta = (EditCondition = "bMultiShot"))
+	TArray<FRotator> MultiShotProjectileAngles;
+
+	
 	//Derived from rate of fire
 	float TimeBetweenShots;
 
 	float LastFireTime;
-	
+
 	FTimerHandle TimerHandle_TimeBetweenShots;
 
 	// Projectile class to spawn.
@@ -79,8 +86,8 @@ protected:
 
 	virtual void Fire();
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	virtual void Trigger();
 
+	public:
+	virtual void Tick(float DeltaTime) override;
 };
