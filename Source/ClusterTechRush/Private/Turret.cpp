@@ -5,6 +5,7 @@
 
 #include "CTR_Character.h"
 #include "DrawDebugHelpers.h"
+#include "HealthComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -13,13 +14,19 @@ ATurret::ATurret()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComp"));
 	TurretDetection = CreateDefaultSubobject<USphereComponent>(TEXT("TurretDetection"));
+	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollider"));
+	TurretHealth = CreateDefaultSubobject<UHealthComponent>(TEXT("TurretHealth"));
 
+	RootComponent = Root;
+	MeshComp->SetupAttachment(RootComponent);
+	TurretDetection->SetupAttachment(RootComponent);
+	BoxCollider->SetupAttachment(MeshComp);
+	
 	TurretDetection->SetSphereRadius(100.0f);
 	
-	RootComponent = MeshComp;
-
 	WeaponSocket = "WeaponSocket";
 
 }
@@ -34,11 +41,12 @@ void ATurret::BeginPlay()
 
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	TurretHealth->OnHealthChanged.AddDynamic(this, &ATurret::OnHealthChanged);
 
 	TurretWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass, FVector::ZeroVector,
                                                     FRotator::ZeroRotator,
                                                     SpawnParameters);
-
 	if (TurretWeapon) {
 
 		TurretWeapon->SetOwner(this);
@@ -95,4 +103,16 @@ void ATurret::OnOverlapEnd(AActor* OverlappedActor, AActor* OtherActor)
 	}
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Overlap end"));
 	
+}
+
+void ATurret::OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta,
+                                     const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) {
+
+	if (Health <= 0.0f) {
+		TurretWeapon->StopFire();
+		SetLifeSpan(1.0f);
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("turret is dying"));
+		//TODO: play turret death effect
+		//TODO: drops?
+	}
 }

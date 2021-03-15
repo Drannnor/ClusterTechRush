@@ -68,6 +68,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	AActor* MyOwner = GetOwner();
 	UGameplayStatics::ApplyPointDamage( OtherActor, BaseDamage, -(Hit.ImpactNormal), Hit,
 	                                    MyOwner->GetInstigatorController(), MyOwner, DamageType );
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("Hit something"));
 
 
 	DestroyProjectile();

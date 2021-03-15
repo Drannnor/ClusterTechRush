@@ -4,10 +4,13 @@
 
 #include "Weapon.h"
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "Perception/PawnSensingComponent.h"
 
+#include "Components/BoxComponent.h"
+#include "GameFramework/Actor.h"
 #include "Turret.generated.h"
+
+class UHealthComponent;
+
 
 UCLASS()
 class CLUSTERTECHRUSH_API ATurret : public AActor
@@ -23,7 +26,16 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, Category = Components)
+	USceneComponent* Root;
+	
+	UPROPERTY(VisibleAnywhere, Category = Components)
 	USkeletalMeshComponent* MeshComp;
+
+	UPROPERTY(VisibleAnywhere, Category = Components)
+	UBoxComponent* BoxCollider;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	UHealthComponent* TurretHealth;
 
 	UPROPERTY(EditDefaultsOnly, Category= Components)
 	USphereComponent* TurretDetection;
@@ -52,8 +64,10 @@ public:
 
 	UFUNCTION()
 	void OnOverlapEnd(AActor* OverlappedActor, AActor* OtherActor);
-	
 
+	UFUNCTION()
+	void OnHealthChanged(UHealthComponent* HealthComp, float Health, float HealthDelta,
+                         const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	
 };
