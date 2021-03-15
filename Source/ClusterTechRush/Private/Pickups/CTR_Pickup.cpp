@@ -40,7 +40,6 @@ void ACTR_Pickup::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, clas
 	ACTR_Character* Player = Cast<ACTR_Character>(OtherActor);
 	if (Player) {
 		ApplyEffect(Player);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Pickup picked up"));
 		Destroy();
 	}
 }

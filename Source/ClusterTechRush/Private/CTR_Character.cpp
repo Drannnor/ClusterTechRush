@@ -167,6 +167,8 @@ void ACTR_Character::SpawnWeapon(const TSubclassOf<AWeapon>& WeaponClass) {
 
 
 void ACTR_Character::DropWeapon() {
+
+	
 	//TODO drop Pickup
 	CurrentWeapon->Destroy();
 	CurrentWeapon = nullptr;
