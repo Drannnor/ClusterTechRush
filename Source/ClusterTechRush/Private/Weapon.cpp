@@ -13,6 +13,7 @@ AWeapon::AWeapon() {
 	PrimaryActorTick.bCanEverTick = true;
 
 	MeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComp"));
+	MeshComp->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	RootComponent = MeshComp;
 
 	MuzzleSocketName = "MuzzleSocket";
