@@ -39,6 +39,8 @@ protected:
 	
 	AWeapon* TurretWeapon;
 
+	float LastShot;
+
 	
 
 public:	
